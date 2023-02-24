@@ -825,7 +825,7 @@ class DatabaseConnector
 
 	
 	/*************************************************************************
-	 * SqlPrepareBindParam()
+	 * SqlBindPreparedParam()
 	 * 
 	 * Binds a variable via reference to a placeholer of a prepared SQL statement
 	 * (e.g. ":name" or index).
@@ -866,7 +866,7 @@ class DatabaseConnector
 	
 	
 	/*************************************************************************
-	 * SqlPrepareBindValue()
+	 * SqlBindPreparedValue()
 	 * 
 	 * Binds a variable via value to a placeholer of a prepared SQL statement
 	 * (e.g. ":name" or index).
