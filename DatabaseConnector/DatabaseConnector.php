@@ -146,7 +146,7 @@ class DatabaseConnector
 	 * @param string $SqlQuery SQL query with optional set placeholder.
 	 *                         (Default: '#_')
 	 * @param string $Prefix   Optional prefix placeholder that's used in the query.
-	 *                         If no value is given, the _DefaultPlaceholder is
+	 *                         If no value is given, the _PrefixPlaceholder is
 	 *                         used.
 	 *
 	 * @return string SQL statement with replaced table prefixes.
@@ -154,7 +154,7 @@ class DatabaseConnector
 	private function replacePrefix ($SqlQuery, $Prefix = '')
 	{
 		return str_replace(
-				(empty($Prefix) ? $this->_DefaultPlaceholder : $Prefix), 
+				(empty($Prefix) ? $this->_PrefixPlaceholder : $Prefix), 
 				$this->_TablePrefix, $SqlQuery);
 	}
 
