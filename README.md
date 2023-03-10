@@ -1,4 +1,4 @@
-# DatabaseConnector 2.6.0
+# DatabaseConnector 2.6.1
 
 DatabaseConnector is a handy PHP wrapper class to allow easy access to database connections to different database types without changing of usage, queries etc..
 
