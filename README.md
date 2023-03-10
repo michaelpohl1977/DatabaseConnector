@@ -33,6 +33,9 @@ Visit https://www.simatex.de/documentation/databaseconnector for detailed inform
 
 ## History
 
+**Version 2.6.1 - 2023-03-10**
+* Minor error correction
+
 **Version 2.6.0 - 2016-10-14**
 * Outputting an error message in SqlExecute(), if no database connection exists
 * Checking write protection when using SQLite database files

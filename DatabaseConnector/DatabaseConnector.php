@@ -3,7 +3,7 @@
 /**
  * DatabaseConnector.php
  * 
- * Base file for usage of DatabaseConnector. 
+ * Base file for usage of DatabaseConnector 2.6.1. 
  * DatabaseConnector allows connections to several installed database drivers
  * such as MySql, Postgresql, SQLite etc. (depends on what is installed and
  * activated on the server)
