@@ -3,7 +3,7 @@
 /**
  * DatabaseConnector.php
  * 
- * Base file for usage of DatabaseConnector 2.6.1. 
+ * Base file for usage of DatabaseConnector 
  * DatabaseConnector allows connections to several installed database drivers
  * such as MySql, Postgresql, SQLite etc. (depends on what is installed and
  * activated on the server)
@@ -146,7 +146,7 @@ class DatabaseConnector
 	 * @param string $SqlQuery SQL query with optional set placeholder.
 	 *                         (Default: '#_')
 	 * @param string $Prefix   Optional prefix placeholder that's used in the query.
-	 *                         If no value is given, the _PrefixPlaceholder is
+	 *                         If no value is given, the $_PrefixPlaceholder is
 	 *                         used.
 	 *
 	 * @return string SQL statement with replaced table prefixes.
@@ -953,6 +953,49 @@ class DatabaseConnector
 
 		$this->stopExecutionTimer();
 		return $iAffectedRows;
+	}
+	
+	
+	/**********************************************************************
+	 * SqlExecutePrepared ()
+	 * 
+	 * Executes the prepared SQL statement with SqlPrepareStatement() on the 
+	 * connected database without expecting a return value 
+	 * (e.g. "UPDATE #__counter SET count = count +1;").
+	 * 
+	 * @param array $ParameterArray (optional) One dimensional array with values
+	 *                              to replace the '?' placeholders or key-value
+	 *                              pairs to replace the ':name' placeholders
+	 * 
+	 * @return bool TRUE if the query was successful or FALSE on failure.
+	 */
+	public function SqlExecutePrepared ( $ParameterArray = NULL )
+	{
+		$this->_LastErrorMessage = '';
+		$returnValue = FALSE;
+		$this->startExecutionTimer();
+
+		try 
+		{
+			if ($this->_PDOStatementPrepared != NULL)
+			{
+				if ($this->_PDOStatementPrepared->execute($ParameterArray))
+				{
+					$returnValue = TRUE;
+				}
+			}
+			else
+			{
+				$this->_LastErrorMessage = 'No statement prepared';
+			}
+		}
+		catch (PDOException $e)
+		{
+			$this->_LastErrorMessage = $e->getMessage();
+		}
+
+		$this->stopExecutionTimer();
+		return $returnValue;
 	}
 
 
