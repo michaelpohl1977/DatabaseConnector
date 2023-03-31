@@ -34,7 +34,7 @@ Visit https://www.simatex.de/documentation/databaseconnector for detailed inform
 ## History
 
 **Version 2.7.0 - 2023-03-31**
-* Added Method SqlExecutePrepared() zu execute prepared Statements
+* Added Method SqlExecutePrepared() to execute prepared Statements
 
 **Version 2.6.1 - 2023-03-10**
 * Minor error correction
