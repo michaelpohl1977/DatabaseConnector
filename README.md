@@ -35,6 +35,12 @@ Visit https://www.simatex.de/documentation/databaseconnector for detailed inform
 
 **Version 2.7.0 - 2023-03-31**
 * Added Method SqlExecutePrepared() to execute prepared Statements
+* SqlPrepareStatement() now can handle table prefixes (bug)
+* SqlBindPreparedValue() now binds a value instead of a parameter (bug)
+* SqlGetPreparedLines() now takes a PDO-parameter array as method parameter (enhancement)
+* SqlGetPreparedLinesAsObject() now takes a PDO-parameter array as method parameter (enhancement)
+* SqlGetFirstPreparedLine() now takes a PDO-parameter array as method parameter (enhancement)
+* SqlGetFirstPreparedLineAsObject() now takes a PDO-parameter array as method parameter (enhancement)
 
 **Version 2.6.1 - 2023-03-10**
 * Minor error correction

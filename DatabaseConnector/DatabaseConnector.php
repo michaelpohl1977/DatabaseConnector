@@ -776,7 +776,7 @@ class DatabaseConnector
 	 * 
 	 * Prepares an SQL statement with placeholders ('?') to allow a later
 	 * execution or one with different parameters.
-	 * (e.g. "SELECT * FROM table WHERE id > ?;")
+	 * (e.g. "SELECT * FROM #_table WHERE id > ?;")
 	 * 
 	 * @param string $SqlQuery    SQL statement to prepare for a later execution
 	 * @param int    $FetchMethod Optional PDO query mode for the current statement.
@@ -795,7 +795,9 @@ class DatabaseConnector
 			if ($this->IsConnected())
 			{
 				$Result = ($this->_PDOStatementPrepared =
-				  $this->_DatabaseObject->prepare($SqlQuery)) !== FALSE;
+					$this->_DatabaseObject->prepare(
+						$this->replacePrefix($SqlQuery)
+					)) !== FALSE;
 
 				if ($Result === FALSE)
 				{
@@ -876,8 +878,8 @@ class DatabaseConnector
 	 *                          prepared statement via SqlPrepareStatement().
 	 *                          This could be either a name (e.g. ":name") or
 	 *                          a 1-based (!) index, if placeholder "?" was used.
-	 * @param mixed $Variable   Variable, that should be bound with the used
-	 *                          placeholder (byValue)
+	 * @param mixed $Value      Variable with value, that should be bound to the 
+	 *                          used placeholder (byValue)
 	 * @param int   $DataType   Optional datatype of the parameter as integer
 	 *                          of the PDO::PARAM_xxx collection.
 	 *                          (Default: PDO::PARAM_STR).
@@ -894,7 +896,7 @@ class DatabaseConnector
 
 		try
 		{
-			$bResult = $this->_PDOStatementPrepared->bindParam(
+			$bResult = $this->_PDOStatementPrepared->bindValue(
 				$Parameter, $Value, $DataType);
 		}
 		catch (PDOException $e) 
@@ -1133,48 +1135,20 @@ class DatabaseConnector
 	 * be accessed via index ($result[0][2]) or name ($result[0]['name']),
 	 * depending on the FETCH_MODE that was set in SqlPrepareStatement().
 	 * 
-	 * @param ... Any number of parameters that should replace the placeholders
-	 *            "?" in the prepared statement or one array with the parameters
-	 *            in the right order.
+	 * @param array $ParameterArray (optional) One dimensional array with values
+	 *                              to replace the '?' placeholders or key-value
+	 *                              pairs to replace the ':name' placeholders                            
 	 * 
 	 * @return array Result of the query, NULL if no result was found or FALSE,
 	 *               if an error occured
 	 */
-	public function SqlGetPreparedLines (/* ... */)
+	public function SqlGetPreparedLines ( $ParameterArray = NULL )
 	{
 		$this->startExecutionTimer();
 
 		if ($this->_PDOStatementPrepared != NULL)
 		{
-			// All given Parameters are converted to an array
-			$arrParamsPlain = func_get_args();
-			$arrParams = array();
-
-			// Next step is storing the parameters as output array. Parameters
-			// can be single parameters or one dimensional arrays with values.
-			for ($i = 0; $i < count($arrParamsPlain); $i++)
-			{
-				if (!is_array($arrParamsPlain[$i]))
-				{
-				   $arrParams[] = $arrParamsPlain[$i];
-				}
-				else
-				{
-					for ($j = 0; $j < count($arrParamsPlain[$i]); $j++)
-					{
-						$arrParams[] = $arrParamsPlain[$i][$j];
-					}
-				}
-			}
-
-			// If the parameter array is empty, the execute() method has to be
-			// called with NULL
-			if (count($arrParams) == 0)
-			{
-				$arrParams = NULL;
-			}
-
-			if ($this->_PDOStatementPrepared->execute($arrParams))
+			if ($this->_PDOStatementPrepared->execute($ParameterArray))
 			{
 				if (($returnMixed = 
 					$this->_PDOStatementPrepared->fetchAll()) !== FALSE)
@@ -1215,17 +1189,16 @@ class DatabaseConnector
 	 * which can be accessed via it's attributes ($result[0]->name) 
 	 * depending on the FETCH_MODE that was set in SqlPrepareStatement().
 	 * 
-	 * @param ... Any number of parameters that should replace the placeholders
-	 *            "?" in the prepared statement or one array with the parameters
-	 *            in the right order.
+	 * @param array $ParameterArray (optional) One dimensional array with values
+	 *                              to replace the '?' placeholders or key-value
+	 *                              pairs to replace the ':name' placeholders
 	 * 
 	 * @return array Result of the query as array of objects, NULL if no result 
 	 *               was found or FALSE, if an error occured
 	 */
-	public function SqlGetPreparedLinesAsObject (/* ... */)
+	public function SqlGetPreparedLinesAsObject ( $ParameterArray = NULL )
 	{
-		$arrResult = call_user_func_array(
-			array($this, "SqlGetPreparedLines"), func_get_args());
+		$arrResult = $this->SqlGetPreparedLines($ParameterArray);
 
 		if ($arrResult !== FALSE && $arrResult !== NULL)
 		{
@@ -1311,21 +1284,18 @@ class DatabaseConnector
 	 * Important! This method has always to be called prior to a usage of
 	 *            SqlGetNextpreparedLine() or SqlGetNextPreparedLineAsObject().
 	 * 
-	 * @param ... Any number of parameters that should replace the placeholders
-	 *            "?" in the prepared statement or one array with the parameters
-	 *            in the right order.
+	 * @param array $ParameterArray (optional) One dimensional array with values
+	 *                              to replace the '?' placeholders or key-value
+	 *                              pairs to replace the ':name' placeholders
 	 * 
 	 * @return array Result of the query as array of objects, NULL if no result 
 	 *               was found or FALSE, if an error occured
 	 */
-	public function SqlGetFirstPreparedLine (/* ... */)
+	public function SqlGetFirstPreparedLine ( $ParameterArray = NULL )
 	{
 		if ($this->_PDOStatementPrepared != NULL)
 		{
-			// Converting the returned array in return objects
-			$arrParams = func_get_args();
-
-			if ($this->_PDOStatementPrepared->execute($arrParams))
+			if ($this->_PDOStatementPrepared->execute($ParameterArray))
 			{
 				if (($returnMixed = 
 					$this->_PDOStatementPrepared->fetch(PDO::FETCH_BOTH,
@@ -1363,17 +1333,16 @@ class DatabaseConnector
 	 * as array of objects  which can be accessed via it's attributes 
 	 * ($result[0]->name) 
 	 *  
-	 * @param ... Any number of parameters that should replace the placeholders
-	 *            "?" in the prepared statement or one array with the parameters
-	 *            in the right order.
+	 * @param array $ParameterArray (optional) One dimensional array with values
+	 *                              to replace the '?' placeholders or key-value
+	 *                              pairs to replace the ':name' placeholders
 	 * 
 	 * @return array Result of the query as array of objects, NULL if no result 
 	 *               was found or FALSE, if an error occured
 	 */
-	public function SqlGetFirstPreparedLineAsObject (/* ... */)
+	public function SqlGetFirstPreparedLineAsObject ( $ParameterArray = NULL )
 	{
-		$arrResult = call_user_func_array(
-			array($this, "SqlGetFirstPreparedLine"), func_get_args());
+		$arrResult = $this->SqlGetFirstPreparedLine($ParameterArray);
 
 		if ($arrResult !== FALSE)
 		{
